@@ -10,23 +10,41 @@ from uc_http_requester.requester import Request
 
 
 class NodeType(flow.NodeType):
-    id: str = 'test_id'
+    id: str = '3aa5720b-0a02-4f8c-8397-872378a23200'
     type: flow.NodeType.Type = flow.NodeType.Type.action
-    name: str = 'test_name'
+    name: str = 'sum_field'
     is_public: bool = False
-    displayName: str = 'test_displayName'
+    displayName: str = 'Sum_field'
     icon: str = '<svg><text x="8" y="50" font-size="50">🤖</text></svg>'
-    description: str = 'test_description'
+    description: str = 'Сервис возвращает сумму двух полей'
     properties: List[Property] = [
         Property(
-            displayName='Тестовое поле',
-            name='foo_field',
-            type=Property.Type.JSON,
-            placeholder='Foo placeholder',
-            description='Foo description',
+            displayName='Текстовое поле',
+            name='text_field',
+            type=Property.Type.STRING,
+            placeholder='Введите число',
+            description='Текстовое поле',
             required=True,
-            default='Test data',
-        )
+            default='0',
+        ),
+        Property(
+            displayName='Числовое поле',
+            name='number_field',
+            type=Property.Type.NUMBER,
+            placeholder='Введите любое число',
+            description='Числовое поле',
+            required=True,
+            default=0,
+        ),
+        Property(
+            displayName='Переключатель',
+            name='switch_field',
+            type=Property.Type.BOOLEAN,
+            placeholder='Переключить',
+            description='Переключатель влияет на тип возвращаемых данных. Число/текст',
+            required=True,
+            default=True,
+        ),
     ]
 
 
@@ -38,10 +56,22 @@ class InfoView(info.Info):
 class ExecuteView(execute.Execute):
     async def post(self, json: NodeRunContext) -> NodeRunContext:
         try:
+            text_value = json.node.data.properties['text_field']
+            number_value = json.node.data.properties['number_field']
+
+            result = int(text_value) + number_value
+
+            if json.node.data.properties['switch_field']:
+                result = str(result)
+
             await json.save_result({
-                "result": json.node.data.properties['foo_field']
+                "result": result
             })
             json.state = RunState.complete
+        except ValueError as e:
+            self.log.warning(f'Error {e}')
+            await json.save_error("Неправильное значение в текстовом поле, должно быть число")
+            json.state = RunState.error
         except Exception as e:
             self.log.warning(f'Error {e}')
             await json.save_error(str(e))
