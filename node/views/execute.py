@@ -1,38 +1,31 @@
-from uc_flow_nodes.schemas import NodeRunContext
 from uc_flow_nodes.views import execute
 from uc_flow_schemas.flow import RunState
+from node.provider.alfacrm import Action
+from node.schemas.node import NodeRunContext
 
+
+EMPTY_CONTENT = {'Result': 'Empty content'}
 
 class ExecuteView(execute.Execute):
     async def post(self, json: NodeRunContext) -> NodeRunContext:
         try:
-            text_value = json.node.data.properties['text_field']
-            number_value = json.node.data.properties['number_field']
-            email = ''
-            datetime = ''
+            action: Action = json.node.data.properties
+            request = action.get_request()
+            base_response = await request.execute()
+            response = action.validate_response(base_response)
 
-            result_sum = int(text_value) + number_value
+            if response:
+                results = action.process_content(response)
 
-            if json.node.data.properties['switch_field']:
-                result_sum = str(result_sum)
-
-            if json.node.data.properties['toggle_field']:
-                email = json.node.data.properties['email_field']
-                datetime = json.node.data.properties['datetime_field']
-
-
-            await json.save_result({
-                "result_sum": result_sum,
-                "email": email,
-                "datetime": datetime
-            })
+                await self.request_json.save_result(results)
+            else:
+                await json.save_result(EMPTY_CONTENT)
             json.state = RunState.complete
-        except ValueError as e:
-            self.log.warning(f'Error {e}')
-            await json.save_error("Неправильное значение в текстовом поле, должно быть число")
+
+
+        except Exception as exp:
+            self.log.warning(f'Error: {exp}')
+            await json.save_error({'error': f'{exp}'})
             json.state = RunState.error
-        except Exception as e:
-            self.log.warning(f'Error {e}')
-            await json.save_error(str(e))
-            json.state = RunState.error
+
         return json

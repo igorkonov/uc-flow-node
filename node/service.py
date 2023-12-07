@@ -1,9 +1,7 @@
 from uc_flow_nodes.service import NodeService
-from node.views.execute import ExecuteView
-from node.views.info import InfoView
 
-
+from node.views import info, execute
 class Service(NodeService):
     class Routes(NodeService.Routes):
-        Info = InfoView
-        Execute = ExecuteView
+        Info = info.InfoView
+        Execute = execute.ExecuteView
