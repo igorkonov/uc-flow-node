@@ -2,376 +2,226 @@ from typing import List
 from uc_flow_schemas import flow
 from uc_flow_schemas.flow import Property, DisplayOptions, OptionValue
 
-from node.schemas.enums import AuthParameters, Method, Parameters, Resource
+from node.schemas.enums import Resource, Method, ContactsParameters, DealsParameters, AssociationsParameters
 
 
 
 class NodeType(flow.NodeType):
     id: str = '3aa5720b-0a02-4f8c-8397-872378a23200'
     type: flow.NodeType.Type = flow.NodeType.Type.action
-    name: str = 'AlfaCRM'
+    name: str = 'HubSpot'
     is_public: bool = False
-    displayName: str = 'AlfaCRM'
+    displayName: str = 'HubSpot'
     icon: str = '<svg><text x="8" y="50" font-size="50">🤖</text></svg>'
     group: List[str] = ["integration"]
-    description: str = 'AlfaCRM_integration'
+    description: str = 'Hubspot_integration'
     inputs: List[str] = ['main']
     outputs: List[str] = ['main']
     properties: List[Property] = [
         Property(
-            displayName='Действие',
-            name='action',
-            type=Property.Type.OPTIONS,
-            noDataExpression=True,
-            description='Выберите действие кубика',
-            options=[
-                OptionValue(
-                    name='Авторизация',
-                    value=AuthParameters.auth,
-                    description='Авторизация пользователя',
-                ),
-                OptionValue(
-                    name='Запрос',
-                    value=AuthParameters.get_data,
-                    description='Получить данные',
-                ),
-            ],
-        ),
-        Property(
-            displayName='Адрес CRM',
-            name='hostname',
-            type=Property.Type.STRING,
-            description='Введите адрес CRM',
-            noDataExpression=True,
-            default='uiscom.s20.online',
-            displayOptions=DisplayOptions(
-                show={
-                    'action': [
-                        AuthParameters.auth,
-                    ],
-                },
-            ),
-        ),
-        Property(
-            displayName='ID филиала',
-            name='branch_id',
-            type=Property.Type.NUMBER,
-            description='Введите ID филиала',
-            default=1,
-            noDataExpression=True,
-            displayOptions=DisplayOptions(
-                show={
-                    'action': [
-                        AuthParameters.auth,
-                    ],
-                },
-            ),
-        ),
-        Property(
-            displayName='E-mail',
-            name='email',
-            type=Property.Type.EMAIL,
-            description='Введите email',
-            default='vehemop789@weirby.com',
-            noDataExpression=True,
-            displayOptions=DisplayOptions(
-                show={
-                    'action': [
-                        AuthParameters.auth,
-                    ],
-                },
-            ),
-        ),
-        Property(
-            displayName='Ключ API (v2api)',
-            name='api_key',
-            type=Property.Type.STRING,
-            description='Введите ваш API ключ (v2api)',
-            default='7acaf091-77b5-11ee-8640-3cecef7ebd64',
-            noDataExpression=True,
-            displayOptions=DisplayOptions(
-                show={
-                    'action': [
-                        AuthParameters.auth,
-                    ],
-                },
-            ),
-        ),
-        Property(
-            displayName='auth_data',
-            name='auth_data',
-            type=Property.Type.JSON,
-            noDataExpression=True,
-            displayOptions=DisplayOptions(
-                show={
-                    'action': [
-                        AuthParameters.get_data,
-                    ],
-                },
-            ),
-        ),
-        Property(
-            displayName='Сущность',
+            displayName='Resource',
             name='resource',
             type=Property.Type.OPTIONS,
-            description='Выберите сущность',
             noDataExpression=True,
-            displayOptions=DisplayOptions(
-                show={
-                    'action': [
-                        AuthParameters.get_data,
-                    ],
-                },
-            ),
+            description='Выберите объект',
             options=[
                 OptionValue(
-                    name='Customer',
-                    value=Resource.customer,
-                    description='Пользователь',
+                    name='contacts',
+                    value=Resource.contacts,
+                    description='',
+                ),
+                OptionValue(
+                    name='deals',
+                    value=Resource.deals,
+                    description='',
+                ),
+                OptionValue(
+                    name='associations',
+                    value=Resource.associations,
+                    description='',
                 ),
             ],
         ),
         Property(
-            displayName='Операция',
-            name='operation',
+            displayName='Access token',
+            name='token',
+            type=Property.Type.STRING,
+            required=True,
+        ),
+        Property(
+            displayName='Method',
+            name='method',
             type=Property.Type.OPTIONS,
-            description='Выберите операцию',
+            description='Выберите метод',
             noDataExpression=True,
             displayOptions=DisplayOptions(
                 show={
-                    'action': [
-                        AuthParameters.get_data,
-                    ],
                     'resource': [
-                        Resource.customer,
+                        Resource.contacts,
+                        Resource.deals
                     ],
                 },
             ),
             options=[
-                OptionValue(
-                    name='Index',
-                    value=Method.index_,
-                    description='Получить клиента',
-                ),
                 OptionValue(
                     name='Create',
                     value=Method.create,
-                    description='Создать клиента',
+                    description='Создать',
+                ),
+                OptionValue(
+                    name='List',
+                    value=Method.list,
+                    description='Получить весь список',
+                ),
+                OptionValue(
+                    name='Retrieve',
+                    value=Method.retrieve,
+                    description='Получить по id',
                 ),
                 OptionValue(
                     name='Update',
                     value=Method.update,
-                    description='Изменить клиента',
+                    description='Изменить',
                 ),
                 OptionValue(
-                    name='Delete',
-                    value=Method.delete,
-                    description='Удалить клиента',
+                    name='Destroy',
+                    value=Method.destroy,
+                    description='Удалить',
                 ),
             ],
         ),
         Property(
-            displayName='Параметры',
-            name='parameters',
-            type=Property.Type.COLLECTION,
-            default={},
-            noDataExpression=True,
+            displayName='Object id',
+            name='object_id',
+            type=Property.Type.NUMBER,
             displayOptions=DisplayOptions(
                 show={
-                    'action': [
-                        AuthParameters.get_data,
-                    ],
                     'resource': [
-                        Resource.customer,
-                    ],
-                    'operation': [
-                        Method.index_,
-                    ],
-                },
-            ),
-            options=[
-                Property(
-                    displayName='ID клиента',
-                    name=Parameters.id,
-                    description='id клиента',
-                    values=[
-                        Property(
-                            type=Property.Type.NUMBER,
-                            default='',
-                            name=Parameters.id,
-                        ),
-                    ],
-                ),
-                Property(
-                    displayName='is_study',
-                    name=Parameters.is_study,
-                    description='состояние клиента ( 0 - лид, 1 - клиент)',
-                    values=[
-                        Property(
-                            type=Property.Type.BOOLEAN,
-                            default=True,
-                            name=Parameters.is_study,
-                        ),
-                    ],
-                ),
-                Property(
-                    displayName='name',
-                    name=Parameters.name,
-                    description='имя клиента',
-                    values=[
-                        Property(
-                            type=Property.Type.STRING,
-                            default='',
-                            name=Parameters.name,
-                        ),
-                    ],
-                ),
-                Property(
-                    displayName='date_from',
-                    name=Parameters.date_from,
-                    description='дата добавления от, date',
-                    values=[
-                        Property(
-                            type=Property.Type.DATETIME,
-                            name=Parameters.date_from,
-                        ),
-                    ],
-                ),
-                Property(
-                    displayName='date_to',
-                    name=Parameters.date_to,
-                    description='дата добавления до, date',
-                    values=[
-                        Property(
-                            type=Property.Type.DATETIME,
-                            name=Parameters.date_to,
-                        ),
-                    ],
-                ),
-                Property(
-                    displayName='phone',
-                    name=Parameters.phone,
-                    description='контакты клиента',
-                    values=[
-                        Property(
-                            type=Property.Type.STRING,
-                            default='',
-                            name=Parameters.phone,
-                        ),
-                    ],
-                ),
-            ],
-        ),
-        Property(
-            displayName='Параметры',
-            name='parameters',
-            type=Property.Type.COLLECTION,
-            default={},
-            noDataExpression=True,
-            displayOptions=DisplayOptions(
-                show={
-                    'action': [
-                        AuthParameters.get_data,
-                    ],
-                    'resource': [
-                        Resource.customer,
-                    ],
-                    'operation': [
-                        Method.create,
-                    ],
-                },
-            ),
-            options=[
-                Property(
-                    displayName='is_study',
-                    name=Parameters.is_study,
-                    description='состояние клиента ( 0 - лид, 1 - клиент)',
-                    values=[
-                        Property(
-                            type=Property.Type.BOOLEAN,
-                            default=True,
-                            name=Parameters.is_study,
-                        ),
-                    ],
-                ),
-                Property(
-                    displayName='name',
-                    name=Parameters.name,
-                    description='полное имя',
-                    values=[
-                        Property(
-                            type=Property.Type.STRING,
-                            default='Igor Konov',
-                            name=Parameters.name,
-                        ),
-                    ],
-                ),
-                Property(
-                    displayName='branch_ids',
-                    name=Parameters.branch_ids,
-                    description='массив идентификаторов филиалов (Branch)',
-                    values=[
-                        Property(
-                            type=Property.Type.NUMBER,
-                            name=Parameters.branch_ids,
-                        ),
-                    ],
-                ),
-                Property(
-                    displayName='legal_type',
-                    name=Parameters.legal_type,
-                    description='тип клиента (1 - физ. лицо, 2 - юр. лицо)',
-                    values=[
-                        Property(
-                            type=Property.Type.BOOLEAN,
-                            default=True,
-                            name=Parameters.legal_type,
-                        ),
-                    ],
-                ),
-            ],
-        ),
-        Property(
-            displayName='Параметры',
-            name='parameters',
-            type=Property.Type.COLLECTION,
-            default={},
-            noDataExpression=True,
-            displayOptions=DisplayOptions(
-                show={
-                    'action': [
-                        AuthParameters.get_data,
-                    ],
-                    'resource': [
-                        Resource.customer,
-                    ],
-                    'operation': [
+                        Resource.deals,
+                        Resource.contacts,
+                        ],
+                    'method': [
+                        Method.retrieve,
                         Method.update,
-                    ],
+                        Method.destroy,
+                        ],
+                }
+            )
+        ),
+        Property(
+            displayName='Limit',
+            name='limit',
+            type=Property.Type.NUMBER,
+            displayOptions=DisplayOptions(
+                show={
+                    'resource': [
+                        Resource.deals,
+                        Resource.contacts,
+                        ],
+                    'method': [Method.list],
                 },
+            ),
+        ),
+        Property(
+            displayName='After',
+            name='after',
+            type=Property.Type.STRING,
+            displayOptions=DisplayOptions(
+                show={
+                    'resource': [
+                        Resource.deals,
+                        Resource.contacts,
+                        ],
+                    'method': [Method.list],
+                },
+            ),
+        ),
+        Property(
+            displayName='Параметры',
+            name='deal_parameters',
+            type=Property.Type.COLLECTION,
+            default={},
+            noDataExpression=True,
+            displayOptions=DisplayOptions(
+                show={
+                    'resource': [
+                        Resource.deals,
+                        ],
+                    'method': [
+                        Method.create,
+                        Method.list,
+                        Method.update,
+                        ],
+                }
             ),
             options=[
                 Property(
-                    displayName='ID клиента',
-                    name=Parameters.id,
-                    description='id клиента',
+                    displayName='Amount',
+                    name=DealsParameters.amount,
+                    description='сумма сделки',
                     values=[
                         Property(
                             type=Property.Type.NUMBER,
-                            default=1,
-                            name=Parameters.id,
+                            default=1500.00,
+                            name=DealsParameters.amount,
                         ),
                     ],
                 ),
                 Property(
-                    displayName='name',
-                    name=Parameters.name,
-                    description='полное имя',
+                    displayName='Close Date',
+                    name=DealsParameters.closedate,
+                    description='Дата закрытия сделки',
+                    values=[
+                        Property(
+                            type=Property.Type.DATETIME,
+                            name=DealsParameters.closedate,
+                        ),
+                    ],
+                ),
+                Property(
+                    displayName='Deal name',
+                    name=DealsParameters.dealname,
+                    description='название сделки',
                     values=[
                         Property(
                             type=Property.Type.STRING,
-                            default='New Test',
-                            name=Parameters.name,
+                            default='New deal',
+                            name=DealsParameters.dealname,
+                        ),
+                    ],
+                ),
+                Property(
+                    displayName='Pipeline',
+                    name=DealsParameters.pipeline,
+                    description='паплайн сделки',
+                    values=[
+                        Property(
+                            type=Property.Type.STRING,
+                            default='default',
+                            name=DealsParameters.pipeline,
+                        ),
+                    ],
+                ),
+                Property(
+                    displayName='Deal stage',
+                    name=DealsParameters.dealstage,
+                    description='этап сделки',
+                    values=[
+                        Property(
+                            type=Property.Type.STRING,
+                            default='contractsent',
+                            name=DealsParameters.dealstage,
+                        ),
+                    ],
+                ),
+                Property(
+                    displayName='Hubspot owner id',
+                    name=DealsParameters.hubspot_owner_id,
+                    description='id владельца hubspot',
+                    values=[
+                        Property(
+                            type=Property.Type.NUMBER,
+                            name=DealsParameters.hubspot_owner_id,
                         ),
                     ],
                 ),
@@ -379,46 +229,163 @@ class NodeType(flow.NodeType):
         ),
         Property(
             displayName='Параметры',
-            name='parameters',
+            name='contacts_parameters',
             type=Property.Type.COLLECTION,
-            placeholder='Add',
             default={},
             noDataExpression=True,
             displayOptions=DisplayOptions(
                 show={
-                    'action': [
-                        AuthParameters.get_data,
-                    ],
                     'resource': [
-                        Resource.customer,
+                        Resource.contacts,
                     ],
-                    'operation': [
-                        Method.delete,
+                    'method': [
+                        Method.create,
+                        Method.list,
+                        Method.update
                     ],
                 },
             ),
             options=[
                 Property(
-                    displayName='ID клиента',
-                    name=Parameters.id,
-                    description='id клиента',
+                    displayName='Email',
+                    name=ContactsParameters.email,
+                    description='email контакта',
                     values=[
                         Property(
-                            type=Property.Type.NUMBER,
-                            default=1,
-                            name=Parameters.id,
+                            type=Property.Type.EMAIL,
+                            default='super@gmail.com',
+                            name=ContactsParameters.email,
                         ),
                     ],
                 ),
                 Property(
-                    displayName='name',
-                    name=Parameters.name,
-                    description='полное имя',
+                    displayName='Firstname',
+                    name=ContactsParameters.firstname,
+                    description='имя контакта',
                     values=[
                         Property(
                             type=Property.Type.STRING,
-                            default='New Test',
-                            name=Parameters.name,
+                            default='Ja',
+                            name=ContactsParameters.firstname,
+                        ),
+                    ],
+                ),
+                Property(
+                    displayName='Lastname',
+                    name=ContactsParameters.lastname,
+                    description='фамилия контакта',
+                    values=[
+                        Property(
+                            type=Property.Type.STRING,
+                            default='Do',
+                            name=ContactsParameters.lastname,
+                        ),
+                    ],
+                ),
+                Property(
+                    displayName='Phone',
+                    name=ContactsParameters.phone,
+                    description='телефон контакта',
+                    values=[
+                        Property(
+                            type=Property.Type.STRING,
+                            default='(555) 555-5555',
+                            name=ContactsParameters.phone,
+                        ),
+                    ],
+                ),
+                Property(
+                    displayName='Company',
+                    name=ContactsParameters.company,
+                    description='компания',
+                    values=[
+                        Property(
+                            type=Property.Type.STRING,
+                            default='HubSpot',
+                            name=ContactsParameters.company,
+                        ),
+                    ],
+                ),
+                Property(
+                    displayName='Website',
+                    name=ContactsParameters.website,
+                    description='вебсайт',
+                    values=[
+                        Property(
+                            type=Property.Type.URL,
+                            name=ContactsParameters.website,
+                        ),
+                    ],
+                ),
+            ],
+        ),
+        Property(
+            displayName='Association type id',
+            name='association_type_id',
+            type=Property.Type.NUMBER,
+            displayOptions=DisplayOptions(
+                show={
+                    'resource': [
+                        Resource.associations,
+                        ],
+                }
+            ),
+        ),
+        Property(
+            displayName='Параметры',
+            name='associations_parameters',
+            type=Property.Type.COLLECTION,
+            default={},
+            noDataExpression=True,
+            displayOptions=DisplayOptions(
+                show={
+                    'resource': [
+                        Resource.associations,
+                    ],
+                },
+            ),
+            options=[
+                Property(
+                    displayName='From object type',
+                    name=AssociationsParameters.from_object_type,
+                    description='идентификатор объекта, с которым вы связываетесь',
+                    values=[
+                        Property(
+                            type=Property.Type.STRING,
+                            name=AssociationsParameters.from_object_type,
+                        ),
+                    ],
+                ),
+                Property(
+                    displayName='From object id',
+                    name=AssociationsParameters.from_object_id,
+                    description='идентификатор записи, которую нужно связать',
+                    values=[
+                        Property(
+                            type=Property.Type.NUMBER,
+                            name=AssociationsParameters.from_object_id,
+                        ),
+                    ],
+                ),
+                Property(
+                    displayName='To object type',
+                    name=AssociationsParameters.to_object_type,
+                    description='идентификатор объекта, с которым вы связываете запись',
+                    values=[
+                        Property(
+                            type=Property.Type.STRING,
+                            name=AssociationsParameters.to_object_type,
+                        ),
+                    ],
+                ),
+                Property(
+                    displayName='To object id',
+                    name=AssociationsParameters.to_object_id,
+                    description='идентификатор записи, с которой нужно связать запись.',
+                    values=[
+                        Property(
+                            type=Property.Type.NUMBER,
+                            name=AssociationsParameters.to_object_id,
                         ),
                     ],
                 ),
